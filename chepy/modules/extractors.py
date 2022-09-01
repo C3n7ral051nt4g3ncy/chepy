@@ -27,10 +27,12 @@ class Extractors(ChepyCore):
         """
         # TODO make this more effecient. because at the moment, we are compiling and running this 4 separate times.
         data = self._convert_to_bytes()
-        found = {}
-        found["md5"] = re.findall(
-            rb"(?:[^a-fA-F\d]|\b)([a-fA-F\d]{32})(?:[^a-fA-F\d]|\b)", data
-        )
+        found = {
+            "md5": re.findall(
+                rb"(?:[^a-fA-F\d]|\b)([a-fA-F\d]{32})(?:[^a-fA-F\d]|\b)", data
+            )
+        }
+
         found["sha1"] = re.findall(
             rb"(?:[^a-fA-F\d]|\b)([a-fA-F\d]{40})(?:[^a-fA-F\d]|\b)", data
         )
@@ -189,13 +191,14 @@ class Extractors(ChepyCore):
             Chepy: The Chepy object.
         """
         if is_binary:  # pragma: no cover
-            matched = list(_pyurlparse(x).netloc for x in self.extract_strings().o)
+            matched = [_pyurlparse(x).netloc for x in self.extract_strings().o]
         else:
-            matched = list(
+            matched = [
                 _pyurlparse(x).netloc
                 for x in self._convert_to_bytes().split()
                 if x.startswith(b"http")
-            )
+            ]
+
         self.state = matched
         return self
 
@@ -433,8 +436,5 @@ class Extractors(ChepyCore):
             Chepy: The Chepy object.
         """
         found = re.findall("[a-zA-Z0-9+/=]{%s,}" % str(20), self._convert_to_str())
-        if len(found) > 1:  # pragma: no cover
-            self.state = found
-        else:
-            self.state = found[0]
+        self.state = found if len(found) > 1 else found[0]
         return self

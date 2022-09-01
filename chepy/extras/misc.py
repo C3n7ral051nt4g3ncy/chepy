@@ -29,14 +29,8 @@ def shannon_entropy(data: Any, unit="shannon") -> float:
     for d in data:
         counts[d] += 1
 
-    ent = 0
-
     probs = [float(c) / len(data) for c in counts.values()]
-    for p in probs:
-        if p > 0.0:
-            ent -= p * math.log(p, base[unit])
-
-    return ent
+    return 0 - sum(p * math.log(p, base[unit]) for p in probs if p > 0.0)
 
 
 def index_of_coincidence(data: Any) -> float:
@@ -69,5 +63,5 @@ def index_of_coincidence(data: Any) -> float:
         IC = freqsum / (N * (N - 1))
     except ZeroDivisionError:
         IC = 0
-        
+
     return IC

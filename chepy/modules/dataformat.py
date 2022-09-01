@@ -342,7 +342,7 @@ class DataFormat(ChepyCore):
         return self
 
     @ChepyDecorators.call_stack
-    def base91_decode(self) -> DataFormatT:  # pragma: no cover
+    def base91_decode(self) -> DataFormatT:    # pragma: no cover
         """Decode as Base91
         Reference: https://github.com/aberaud/base91-python/blob/master/base91.py#L42
 
@@ -350,13 +350,13 @@ class DataFormat(ChepyCore):
             Chepy: The Chepy object.
         """
         encoded_str = self._convert_to_str()
-        decode_table = dict((v, k) for k, v in enumerate(Encoding.BASE91_ALPHABET))
+        decode_table = {v: k for k, v in enumerate(Encoding.BASE91_ALPHABET)}
         v = -1
         b = 0
         n = 0
         out = bytearray()
         for strletter in encoded_str:
-            if not strletter in decode_table:
+            if strletter not in decode_table:
                 continue
             c = decode_table[strletter]
             if v < 0:
@@ -369,7 +369,7 @@ class DataFormat(ChepyCore):
                     out += struct.pack("B", b & 255)
                     b >>= 8
                     n -= 8
-                    if not n > 7:
+                    if n <= 7:
                         break
                 v = -1
         if v + 1:
@@ -518,10 +518,12 @@ class DataFormat(ChepyCore):
             >>> Chepy("AAA").to_hex().out.decode()
             "414141"
         """
-        if delimiter == "":
-            self.state = binascii.hexlify(self._convert_to_bytes())
-        else:
-            self.state = binascii.hexlify(self._convert_to_bytes(), sep=delimiter)
+        self.state = (
+            binascii.hexlify(self._convert_to_bytes(), sep=delimiter)
+            if delimiter
+            else binascii.hexlify(self._convert_to_bytes())
+        )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -541,11 +543,12 @@ class DataFormat(ChepyCore):
         """
         if delimiter is not None:
             self.state = join_by.encode().join(
-                list(
+                [
                     binascii.unhexlify(x)
                     for x in self._convert_to_str().split(delimiter)
-                )
+                ]
             )
+
         else:
             self.state = binascii.unhexlify(self._convert_to_str())
         return self
@@ -679,12 +682,12 @@ class DataFormat(ChepyCore):
         """
         if is_bytearray:
             self.state = binascii.hexlify(bytearray(self.state))
-            return self
         else:
             delimiters = [" ", "0x", "%", ",", ";", ":", r"\\n", "\\r\\n"]
             string = re.sub("|".join(delimiters), "", self.state)
             self.state = string
-            return self
+
+        return self
 
     @ChepyDecorators.call_stack
     def str_from_hexdump(self) -> DataFormatT:
@@ -823,9 +826,7 @@ class DataFormat(ChepyCore):
             >>> Chepy("aㅎ").to_charcode()
             "61 314e"
         """
-        hold = []
-        for c in self._convert_to_str():
-            hold.append(str(int(hex(ord(c))[2:], base)))
+        hold = [str(int(hex(ord(c))[2:], base)) for c in self._convert_to_str()]
         self.state = join_by.join(hold)
         return self
 
@@ -847,9 +848,7 @@ class DataFormat(ChepyCore):
             >>> Chepy("314e 61 20 41"]).from_charcode().o
             "ㅎa A"
         """
-        out = []
-        for c in self._convert_to_str().split(delimiter):
-            out.append(chr(int(c, base)))
+        out = [chr(int(c, base)) for c in self._convert_to_str().split(delimiter)]
         self.state = join_by.join(out)
         return self
 
@@ -868,8 +867,9 @@ class DataFormat(ChepyCore):
             '97 12622'
         """
         self.state = join_by.join(
-            str(x) for x in list(ord(s) for s in list(self._convert_to_str()))
+            str(x) for x in [ord(s) for s in list(self._convert_to_str())]
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -888,8 +888,9 @@ class DataFormat(ChepyCore):
             "ㅎ"
         """
         self.state = join_by.join(
-            list(chr(int(s)) for s in self._convert_to_str().strip().split(delimiter))
+            [chr(int(s)) for s in self._convert_to_str().strip().split(delimiter)]
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -907,8 +908,9 @@ class DataFormat(ChepyCore):
             "01100001 01100010 01100011"
         """
         self.state = join_by.join(
-            list(format(ord(s), "08b") for s in list(self._convert_to_str()))
+            [format(ord(s), "08b") for s in list(self._convert_to_str())]
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -944,8 +946,9 @@ class DataFormat(ChepyCore):
             "141 142 30516"
         """
         self.state = join_by.join(
-            list(format(ord(s), "0o") for s in list(self._convert_to_str()))
+            [format(ord(s), "0o") for s in list(self._convert_to_str())]
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -964,8 +967,9 @@ class DataFormat(ChepyCore):
             "ab"
         """
         self.state = join_by.join(
-            list(chr(int(str(x), 8)) for x in self._convert_to_str().split(delimiter))
+            [chr(int(str(x), 8)) for x in self._convert_to_str().split(delimiter)]
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -1050,9 +1054,10 @@ class DataFormat(ChepyCore):
             }
         """
         data = self._convert_to_str()
-        final = dict()
-        for enc in Encoding.py_encodings:
-            final[enc] = data.encode(enc, errors="backslashreplace")
+        final = {
+            enc: data.encode(enc, errors="backslashreplace")
+            for enc in Encoding.py_encodings
+        }
 
         for text_enc in Encoding.py_text_encodings:
             try:
@@ -1093,9 +1098,10 @@ class DataFormat(ChepyCore):
             }
         """
         data = self._convert_to_bytes()
-        final = dict()
-        for enc in Encoding.py_encodings:
-            final[enc] = data.decode(enc, errors="backslashreplace")
+        final = {
+            enc: data.decode(enc, errors="backslashreplace")
+            for enc in Encoding.py_encodings
+        }
 
         for text_enc in Encoding.py_text_encodings:
             try:
@@ -1106,13 +1112,7 @@ class DataFormat(ChepyCore):
                 final[text_enc] = codecs.decode(
                     data.decode(), text_enc, errors="backslashreplace"
                 )
-            except AssertionError:
-                final[text_enc] = ""
-                continue
-            except UnicodeError:
-                final[text_enc] = ""
-                continue
-            except TypeError:
+            except (AssertionError, UnicodeError, TypeError):
                 final[text_enc] = ""
                 continue
         self.state = final
@@ -1130,7 +1130,7 @@ class DataFormat(ChepyCore):
             "⠎⠑⠉⠗⠑⠞⠀⠍⠑⠎⠎⠁⠛⠑"
         """
         chars = dict(zip(Encoding.asciichars, Encoding.brailles))
-        self.state = "".join(list(chars.get(c.lower()) for c in self.state))
+        self.state = "".join([chars.get(c.lower()) for c in self.state])
         return self
 
     @ChepyDecorators.call_stack
@@ -1145,7 +1145,7 @@ class DataFormat(ChepyCore):
             "secret message"
         """
         chars = dict(zip(Encoding.brailles, Encoding.asciichars))
-        self.state = "".join(list(chars.get(c.lower()) for c in self.state))
+        self.state = "".join([chars.get(c.lower()) for c in self.state])
         return self
 
     @ChepyDecorators.call_stack
@@ -1217,10 +1217,7 @@ class DataFormat(ChepyCore):
         Returns:
             Chepy: The Chepy object.
         """
-        if end is None:
-            self.state = self.state[start:]
-        else:
-            self.state = self.state[start:end]
+        self.state = self.state[start:] if end is None else self.state[start:end]
         return self
 
     @ChepyDecorators.call_stack

@@ -30,8 +30,9 @@ class AritmeticLogic(ChepyCore):
             Chepy: The Chepy object
         """
         self.state = binascii.unhexlify(
-            "".join(list(format(ord(x) >> int(amount), "02x") for x in list("hello")))
+            "".join([format(ord(x) >> amount, "02x") for x in list("hello")])
         )
+
         return self
 
     @ChepyDecorators.call_stack
@@ -118,7 +119,7 @@ class AritmeticLogic(ChepyCore):
             Chepy: The Chepy object.
         """
         assert isinstance(self.state, list), StateNotList()
-        numbers = list(self.__hex_to_int(x) for x in self.state)
+        numbers = [self.__hex_to_int(x) for x in self.state]
         self.state = sum(numbers)
         return self
 
@@ -130,7 +131,7 @@ class AritmeticLogic(ChepyCore):
             Chepy: The Chepy object.
         """
         assert isinstance(self.state, list), StateNotList()
-        numbers = list(self.__hex_to_int(x) for x in self.state)
+        numbers = [self.__hex_to_int(x) for x in self.state]
         self.state = statistics.mean(numbers)
         return self
 
@@ -142,7 +143,7 @@ class AritmeticLogic(ChepyCore):
             Chepy: The Chepy object.
         """
         assert isinstance(self.state, list), StateNotList()
-        numbers = list(self.__hex_to_int(x) for x in self.state)
+        numbers = [self.__hex_to_int(x) for x in self.state]
         self.state = statistics.median(numbers)
         return self
 

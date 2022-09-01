@@ -9,7 +9,7 @@ chepy = dir(Chepy)
 
 
 def test_options():
-    options = dict()
+    options = {}
     for method in chepy:
         try:
             attributes = getattr(Chepy, method)

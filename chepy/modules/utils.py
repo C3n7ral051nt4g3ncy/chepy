@@ -35,14 +35,14 @@ class Utils(ChepyCore):
         """
         if count == 1:
             self.state = self.state[::-1]
-            return self
         else:
             self.state = "".join(
                 [self.state[x : x + count] for x in range(0, len(self.state), count)][
                     ::-1
                 ]
             )
-            return self
+
+        return self
 
     @ChepyDecorators.call_stack
     def count_occurances(self, regex: str, case_sensitive: bool = False) -> UtilsT:
@@ -61,10 +61,7 @@ class Utils(ChepyCore):
             >>> Chepy("AABCDADJAKDJHKSDAJSDdaskjdhaskdjhasdkja").count_occurances("ja").out
             2
         """
-        if case_sensitive:
-            r = re.compile(regex)
-        else:
-            r = re.compile(regex, re.IGNORECASE)
+        r = re.compile(regex) if case_sensitive else re.compile(regex, re.IGNORECASE)
         self.state = len(r.findall(self._convert_to_str()))
         return self
 
@@ -362,9 +359,9 @@ class Utils(ChepyCore):
         """
         assert isinstance(self.state, list), StateNotList()
         if exact:
-            self.state = [x for x in self.state if len(str(x)) == int(length)]
+            self.state = [x for x in self.state if len(str(x)) == length]
         else:
-            self.state = [x for x in self.state if len(str(x)) >= int(length)]
+            self.state = [x for x in self.state if len(str(x)) >= length]
         return self
 
     @ChepyDecorators.call_stack
@@ -460,9 +457,7 @@ class Utils(ChepyCore):
             >>> Chepy("some some data").strip(r"some\s").o
             "data"
         """
-        flags = 0
-        if ignore_case:
-            flags = re.IGNORECASE
+        flags = re.IGNORECASE if ignore_case else 0
         self.state = re.sub(pattern, "", self._convert_to_str(), flags=flags)
         return self
 
@@ -482,9 +477,7 @@ class Utils(ChepyCore):
             >>> Chepy("some some data").find_replace(r"some\s", "data").o
             "datadatadata"
         """
-        flags = 0
-        if ignore_case:
-            flags = re.IGNORECASE
+        flags = re.IGNORECASE if ignore_case else 0
         self.state = re.sub(pattern, repl, self._convert_to_str(), flags=flags)
         return self
 
@@ -614,10 +607,11 @@ class Utils(ChepyCore):
             >>> c = Chepy("lol").pad(8, direction="right", char="a")
             aalol
         """
-        assert direction in [
+        assert direction in {
             "left",
             "right",
-        ], "Direction has to be either left or right"
+        }, "Direction has to be either left or right"
+
         if direction == "left":
             self.state = self._convert_to_str().ljust(
                 width - len(self._convert_to_str()), char

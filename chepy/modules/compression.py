@@ -28,7 +28,7 @@ class Compression(ChepyCore):
             Chepy: The Chepy object.
         """
         data = bytearray(binascii.hexlify(self._convert_to_bytes()))
-        data[0:8] = b"504b0304"
+        data[:8] = b"504b0304"
         self.state = binascii.unhexlify(data)
         return self
 
@@ -71,7 +71,7 @@ class Compression(ChepyCore):
             ['somefile', 'some_dir/some_file'...]
         """
         with zipfile.ZipFile(self._load_as_file()) as z:
-            self.state = list(i.filename for i in z.infolist())
+            self.state = [i.filename for i in z.infolist()]
         return self
 
     @ChepyDecorators.call_stack
@@ -119,7 +119,7 @@ class Compression(ChepyCore):
         z = zipfile.ZipFile(self._load_as_file())
         if password is not None:
             z.setpassword(password.encode())
-        self.state = list(z.read(f) for f in z.infolist())
+        self.state = [z.read(f) for f in z.infolist()]
         z.close()
         return self
 
@@ -155,10 +155,7 @@ class Compression(ChepyCore):
             Chepy: The Chepy object.
         """
         self.__tar_modes(mode)
-        if mode:
-            mode = "r:{}".format(mode)
-        else:
-            mode = "r"
+        mode = f"r:{mode}" if mode else "r"
         tar = tarfile.open(fileobj=self._load_as_file(), mode=mode)
         self.state = [t.name for t in tar.getmembers()]
         return self
@@ -175,10 +172,7 @@ class Compression(ChepyCore):
             Chepy: The Chepy object.
         """
         self.__tar_modes(mode)
-        if mode:
-            mode = "r:{}".format(mode)
-        else:
-            mode = "r"
+        mode = f"r:{mode}" if mode else "r"
         tar = tarfile.open(fileobj=self._load_as_file(), mode=mode)
         self.state = tar.extractfile(filename).read()
         return self
@@ -194,10 +188,7 @@ class Compression(ChepyCore):
             Chepy: The Chepy object.
         """
         self.__tar_modes(mode)
-        if mode:
-            mode = "r:{}".format(mode)
-        else:
-            mode = "r"
+        mode = f"r:{mode}" if mode else "r"
         tar = tarfile.open(fileobj=self._load_as_file(), mode=mode)
         self.state = {t.name: tar.extractfile(t).read() for t in tar.getmembers()}
         return self
@@ -214,10 +205,7 @@ class Compression(ChepyCore):
             Chepy: The Chepy object.
         """
         self.__tar_modes(mode)
-        if mode:
-            mode = "w:{}".format(mode)
-        else:
-            mode = "w"
+        mode = f"w:{mode}" if mode else "w"
         fh = io.BytesIO()
         with tarfile.open(fileobj=fh, mode=mode) as tar:
             info = tarfile.TarInfo(name=filename)

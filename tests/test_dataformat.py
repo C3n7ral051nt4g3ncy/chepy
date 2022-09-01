@@ -213,7 +213,11 @@ def test_normalize_hex():
     assert Chepy("41:42:CE").normalize_hex().o == "4142CE"
     assert Chepy("0x410x420xce").normalize_hex().o == "4142ce"
     assert (
-        Chepy("tests/files/hello").load_file().normalize_hex(True).o[0:6].decode()
+        Chepy("tests/files/hello")
+        .load_file()
+        .normalize_hex(True)
+        .o[:6]
+        .decode()
         == "cffaed"
     )
 

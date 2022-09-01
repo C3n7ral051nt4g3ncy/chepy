@@ -6,7 +6,7 @@ path = str(Path().absolute() / "tests/files/encoding")
 
 def test_read_file():
     c = Chepy(path).load_file()
-    assert c.out[0:10] == "=0GDAqREMS"
+    assert c.out[:10] == "=0GDAqREMS"
 
 
 def test_rot_13():
@@ -16,7 +16,7 @@ def test_rot_13():
 
 def test_reverse():
     c = Chepy(path).load_file()
-    assert c.reverse().out[0:10] == "E0SMERSADy"
+    assert c.reverse().out[:10] == "E0SMERSADy"
 
 
 def test_flag():

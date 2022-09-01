@@ -37,10 +37,7 @@ class CliCompleter(Completer):
                 if current is not None:
                     has_options = method_dict.get(selected)["options"]
                     if has_options is not None:
-                        options = [
-                            ("--{}".format(o["flag"]), {"meta": o["meta"]})
-                            for o in has_options
-                        ]
+                        options = [(f'--{o["flag"]}', {"meta": o["meta"]}) for o in has_options]
                         methods = options + methods
             else:
                 methods = options
@@ -65,11 +62,11 @@ class CliCompleter(Completer):
 
 def functions_cli():
     """Get all the function names from this module"""
-    functions = []
-    for name, obj in inspect.getmembers(module):
-        if inspect.isfunction(obj) and obj.__name__.startswith("cli_"):
-            functions.append(obj.__name__)
-    return functions
+    return [
+        obj.__name__
+        for name, obj in inspect.getmembers(module)
+        if inspect.isfunction(obj) and obj.__name__.startswith("cli_")
+    ]
 
 
 def get_doc(method: str):
@@ -101,23 +98,17 @@ def cli_highlight(fire: object, highlight: str):
     current_state = fire.states[fire._current_index]
     if fire is not None and isinstance(fire, Chepy):
         try:
-            print(
-                re.sub(
-                    "({})".format(highlight),
-                    yellow_background(r"\1"),
-                    str(current_state),
-                )
-            )
+            print(re.sub(f"({highlight})", yellow_background(r"\1"), str(current_state)))
         except:
             red("Could not highlight because state is not a string")
-        # elif type(current_state) == bytes or type(current_state) == bytearray:
-        #     print(re.sub('({})'.format(highlight).encode(), red(r'\1').encode(), current_state).decode())
+            # elif type(current_state) == bytes or type(current_state) == bytearray:
+            #     print(re.sub('({})'.format(highlight).encode(), red(r'\1').encode(), current_state).decode())
     else:
         print(type(fire))
 
 
 def get_cli_options():
-    options = dict()
+    options = {}
     for method in functions_cli():
         try:
             attributes = getattr(module, method)
@@ -150,7 +141,7 @@ def get_cli_options():
 
 
 def print_in_colors(out):
-    style = Style.from_dict({"cli_out": "fg:{}".format(config.cli_info_color)})
+    style = Style.from_dict({"cli_out": f"fg:{config.cli_info_color}"})
     print_formatted_text(FormattedText([("class:cli_out", str(out))]), style=style)
 
 
@@ -174,7 +165,7 @@ def cli_get_state(fire: object, index: int):
         index (int): Required. The index for the state
     """
     if fire is not None and isinstance(fire, Chepy):
-        print_in_colors(fire.states[int(index)])
+        print_in_colors(fire.states[index])
     else:
         print(type(fire))
 

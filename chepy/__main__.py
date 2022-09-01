@@ -36,28 +36,27 @@ prompt_colors = config.prompt_colors.split()
 def get_style():
     return Style.from_dict(
         {
-            "completion-menu.completion.current": "bg:{}".format(config.prompt_search_background),
-            # "completion-menu.completion": "bg:#008888 #ffffff",
+            "completion-menu.completion.current": f"bg:{config.prompt_search_background}",
             "completion-menu.completion.fuzzymatch.outside": "fg:#00aaaa",
-            "prompt1": "{} bold".format(prompt_colors[0]),
-            "prompt2": "{} bold".format(prompt_colors[1]),
-            "prompt3": "{} bold".format(prompt_colors[2]),
+            "prompt1": f"{prompt_colors[0]} bold",
+            "prompt2": f"{prompt_colors[1]} bold",
+            "prompt3": f"{prompt_colors[2]} bold",
             "state_index": "#ffd700",
-            "rprompt": "fg:{}".format(config.prompt_rprompt),
+            "rprompt": f"fg:{config.prompt_rprompt}",
             "bottom-toolbar": config.prompt_bottom_toolbar,
-            "prompt_toolbar_version": "bg:{}".format(config.prompt_toolbar_version),
-            "prompt_toolbar_states": "bg:{}".format(config.prompt_toolbar_states),
-            "prompt_toolbar_buffers": "bg:{}".format(config.prompt_toolbar_buffers),
-            "prompt_toolbar_type": "bg:{}".format(config.prompt_toolbar_type),
-            "prompt_toolbar_plugins": "bg:{}".format(config.prompt_toolbar_plugins),
-            "prompt_toolbar_errors": "bg:{}".format(config.prompt_toolbar_errors),
+            "prompt_toolbar_version": f"bg:{config.prompt_toolbar_version}",
+            "prompt_toolbar_states": f"bg:{config.prompt_toolbar_states}",
+            "prompt_toolbar_buffers": f"bg:{config.prompt_toolbar_buffers}",
+            "prompt_toolbar_type": f"bg:{config.prompt_toolbar_type}",
+            "prompt_toolbar_plugins": f"bg:{config.prompt_toolbar_plugins}",
+            "prompt_toolbar_errors": f"bg:{config.prompt_toolbar_errors}",
         }
     )
 
 
 def get_options():
     global errors
-    options = dict()
+    options = {}
     for method in chepy:
         try:
             attributes = getattr(Chepy, method)
@@ -122,7 +121,7 @@ def bottom_toolbar(fire_obj):
         current_state = fire_obj._current_index if fire_obj is not None else 0
         buffers = len(fire_obj.buffers) if fire_obj is not None else 0
         return [
-            ("class:prompt_toolbar_version", "Chepy: {} ".format(__version__)),
+            ("class:prompt_toolbar_version", f"Chepy: {__version__} "),
             (
                 "class:prompt_toolbar_states",
                 " States: {current}/{total} ".format(
@@ -135,13 +134,13 @@ def bottom_toolbar(fire_obj):
             ),
             (
                 "class:prompt_toolbar_type",
-                " State: {} ".format(type(fire_obj.state).__name__),
+                f" State: {type(fire_obj.state).__name__} ",
             ),
             (
                 "class:prompt_toolbar_plugins",
-                " Plugins: {} ".format(config.enable_plugins),
+                f" Plugins: {config.enable_plugins} ",
             ),
-            ("class:prompt_toolbar_errors", " Errors: {} ".format(len(errors))),
+            ("class:prompt_toolbar_errors", f" Errors: {len(errors)} "),
         ]
 
 
@@ -151,18 +150,17 @@ class CustomValidator(Validator):
         if re.search(r"^(!|#|\?)", document.text):
             pass
         elif len(text) > 1:
-            if not text[-2].startswith("--"):
-                if (
-                    not re.search(r"\"|'", text[-1])
-                    and not text[-1].startswith("--")
-                    and text[-1] not in list(get_options().keys())
-                ):
-                    raise ValidationError(
-                        cursor_position=1,
-                        message="{text} is not a valid Chepy method".format(
-                            text=text[-1]
-                        ),
-                    )
+            if not text[-2].startswith("--") and (
+                not re.search(r"\"|'", text[-1])
+                and not text[-1].startswith("--")
+                and text[-1] not in list(get_options().keys())
+            ):
+                raise ValidationError(
+                    cursor_position=1,
+                    message="{text} is not a valid Chepy method".format(
+                        text=text[-1]
+                    ),
+                )
 
 
 class CustomCompleter(Completer):
@@ -183,10 +181,7 @@ class CustomCompleter(Completer):
                 if current is not None:
                     has_options = method_dict.get(selected)["options"]
                     if has_options is not None:
-                        options = [
-                            ("--{}".format(o["flag"]), {"meta": o["meta"]})
-                            for o in has_options
-                        ]
+                        options = [(f'--{o["flag"]}', {"meta": o["meta"]}) for o in has_options]
                         methods = options + methods
             else:
                 methods = options
@@ -201,9 +196,9 @@ class CustomCompleter(Completer):
                 not_chepy_obj = ""
                 if method_docs.get("returns"):
                     if method_docs["returns"] is None:
-                        not_chepy_obj = "bg:{}".format(config.prompt_cli_method)
+                        not_chepy_obj = f"bg:{config.prompt_cli_method}"
                     elif method_docs["returns"] == "ChepyPlugin":
-                        not_chepy_obj = "bg:{}".format(config.prompt_plugin_method)
+                        not_chepy_obj = f"bg:{config.prompt_plugin_method}"
                 yield Completion(
                     method_name,
                     start_position=-len(word),
@@ -214,10 +209,7 @@ class CustomCompleter(Completer):
 
 def get_current_type(obj):
     if config.show_rprompt:
-        if obj:
-            return type(obj).__name__
-        else:
-            return "Type of current state"
+        return type(obj).__name__ if obj else "Type of current state"
     else:
         return None
 
@@ -225,8 +217,9 @@ def get_current_type(obj):
 def parse_args(args):
     parse = argparse.ArgumentParser()
     parse.add_argument(
-        "-v", "--version", action="version", version="%(prog)s " + __version__
+        "-v", "--version", action="version", version=f"%(prog)s {__version__}"
     )
+
     parse.add_argument(
         "-r", "--recipe", dest="recipe", help="Run a Chepy recipe and exit"
     )
@@ -268,36 +261,29 @@ def main():
                 # check and output any commands that start with cli_
                 if re.match(r"^\!", prompt):
                     print(magenta(subprocess.getoutput(re.sub(r"^\!\s?", "", prompt))))
-                # check if line is a comment
                 elif re.match(r"^#", prompt):
                     print(cyan(prompt))
-                # get help for a method
                 elif re.match(r"^\?", prompt):
                     _method_name = re.match(r"^\?(\s?)+([\w_]+)", prompt).group(2)
                     chepy_cli.get_doc(_method_name)
-                # check if method called is a cli method
                 elif re.search(r"^cli_.+", prompt):
                     cli_method = prompt.split()[0]
                     cli_args = re.search(r"--(\w+)\s([\w\W]+)", prompt)
                     # Show errors encountered
                     if cli_method == "cli_show_errors":
                         getattr(chepy_cli, "cli_show_errors")(errors)
-                    # show the current plugin path
                     elif cli_method == "cli_plugin_path":
                         getattr(chepy_cli, "cli_plugin_path")(config)
-                    # Edit the current state
                     elif cli_method == "cli_edit_state":
                         try:
                             getattr(chepy_cli, "cli_edit_state")(fire_obj, args_data)
-                            args_data = args_data[0 : args_data.index("-")] + ["-"]
+                            args_data = args_data[:args_data.index("-")] + ["-"]
                         except:
                             e_type, e_msg, e_traceback = sys.exc_info()
                             print(red(e_type.__name__), yellow("Could not edit state"))
-                    # Go back one step
                     elif cli_method == "cli_go_back":
                         args_data = args_data[: -len(last_command + ["-"])]
-                        print(cyan("Go back: {}".format(last_command)))
-                    # Delete the cli history file
+                        print(cyan(f"Go back: {last_command}"))
                     elif cli_method == "cli_delete_history":
                         Path(config.history_path).unlink()
                     elif cli_args:
@@ -336,10 +322,7 @@ def main():
                         print(red(e_type.__name__), yellow(e_msg.__str__()))
                         args_data = args_data[: -len(last_command)]
                         continue
-        except KeyboardInterrupt:
-            print(green("\nOKBye"))
-            sys.exit()
-        except EOFError:
+        except (KeyboardInterrupt, EOFError):
             print(green("\nOKBye"))
             sys.exit()
 

@@ -65,7 +65,10 @@ def test_parse_x509_der_hex():
 
 
 def test_pem_to_der():
-    assert Chepy(path).load_file().pem_to_der_hex().to_hex().o.decode()[0:6] == "308202"
+    assert (
+        Chepy(path).load_file().pem_to_der_hex().to_hex().o.decode()[:6]
+        == "308202"
+    )
 
 
 def test_der_hex_to_pem():

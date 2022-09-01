@@ -72,17 +72,18 @@ class CodeTidy(ChepyCore):
             >>> Chepy("some String").to_upper_case(by="all").o
             "SOME STRING"
         """
-        assert by in [
+        assert by in {
             "all",
             "word",
             "sentence",
-        ], "Valid options are all, word and sentence"
+        }, "Valid options are all, word and sentence"
+
         if by == "all":
             self.state = self._convert_to_str().upper()
-        elif by == "word":
-            self.state = self._convert_to_str().title()
         elif by == "sentence":
             self.state = self._convert_to_str().capitalize()
+        elif by == "word":
+            self.state = self._convert_to_str().title()
         return self
 
     @ChepyDecorators.call_stack
@@ -140,10 +141,7 @@ class CodeTidy(ChepyCore):
             >>> Chepy("some Data_test").to_camel_case(ignore_space=True).o
             "some DataTest"
         """
-        if ignore_space:
-            r = re.compile(r"_.|\-.")
-        else:
-            r = re.compile(r"_.|\-.|\s.")
+        r = re.compile(r"_.|\-.") if ignore_space else re.compile(r"_.|\-.|\s.")
         self.state = r.sub(lambda x: x.group()[1].upper(), self._convert_to_str())
         return self
 
@@ -195,13 +193,10 @@ class CodeTidy(ChepyCore):
         chars = {"B": "8", "E": "3", "L": "1", "O": "0", "S": "5", "T": "7", "Z": "2"}
         special = {"A": "@", "C": "(", "I": "!", "X": "%"}
         if special_chars:
-            chars = {**chars, **special}
+            chars |= special
         hold = ""
         for char in list(self._convert_to_str()):
             upper = char.upper()
-            if chars.get(upper):
-                hold += chars.get(upper)
-            else:
-                hold += char
+            hold += chars.get(upper) or char
         self.state = hold
         return self

@@ -37,5 +37,5 @@ def hex_chars() -> list:
     Returns:
         list: List of all hex characters
     """
-    return list("{:02x}".format(x) for x in range(0, 256))
+    return ["{:02x}".format(x) for x in range(256)]
 
