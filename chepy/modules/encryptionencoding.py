@@ -57,21 +57,21 @@ class EncryptionEncoding(ChepyCore):
         # modify key according to mode
         if key_format == "hex":
             key = binascii.unhexlify(key)
-        if key_format == "base64" or key_format == "b64":
+        if key_format in {"base64", "b64"}:
             key = base64.b64decode(key)
-        if key_format == "utf-8" or key_format == "utf8":
-            key = key.decode().encode("utf-8")
         if key_format == "latin-1":
             key = key.decode().encode("latin-1")
 
+        elif key_format in {"utf-8", "utf8"}:
+            key = key.decode().encode("utf-8")
         # modify iv according to mode
         if isinstance(iv, str):
             iv = iv.encode()
         if iv_format == "hex":
             iv = binascii.unhexlify(iv)
-        if iv_format == "base64" or iv_format == "b64":
+        if iv_format in {"base64", "b64"}:
             iv = base64.b64decode(iv)
-        if iv_format == "utf-8" or iv_format == "utf8":
+        if iv_format in {"utf-8", "utf8"}:
             key = key.decode().encode("utf-8")
         if iv_format == "latin-1":
             key = key.decode().encode("latin-1")
@@ -201,7 +201,7 @@ class EncryptionEncoding(ChepyCore):
         ], "Valid key types are hex, utf and base64"
 
         if isinstance(key, int):
-            key = str(key)
+            key = key
         if key_type == "utf":
             key = binascii.hexlify(key.encode())
         elif key_type == "base64":
@@ -337,8 +337,7 @@ class EncryptionEncoding(ChepyCore):
                     return self
                 except jwt.InvalidSignatureError:
                     continue
-            else:  # pragma: no cover
-                return self
+            return self
 
     @ChepyDecorators.call_stack
     def rc4_encrypt(self, key: str, key_format: str = "hex") -> EncryptionEncodingT:
@@ -621,7 +620,7 @@ class EncryptionEncoding(ChepyCore):
             b"5fb8c186394fc399849b89d3b6605fa3"
         """
 
-        assert mode in ["CBC", "OFB", "CTR", "ECB", "GCM"], "Not a valid mode."
+        assert mode in {"CBC", "OFB", "CTR", "ECB", "GCM"}, "Not a valid mode."
 
         key, iv = self._convert_key(key, iv, key_format, iv_format)
 
@@ -629,13 +628,13 @@ class EncryptionEncoding(ChepyCore):
             cipher = AES.new(key, mode=AES.MODE_CBC, iv=iv)
             self.state = cipher.encrypt(Padding.pad(self._convert_to_bytes(), 16))
             return self
-        elif mode == "ECB":
-            cipher = AES.new(key, mode=AES.MODE_ECB)
-            self.state = cipher.encrypt(Padding.pad(self._convert_to_bytes(), 16))
-            return self
         elif mode == "CTR":
             cipher = AES.new(key, mode=AES.MODE_CTR, nonce=b"")
             self.state = cipher.encrypt(self._convert_to_bytes())
+            return self
+        elif mode == "ECB":
+            cipher = AES.new(key, mode=AES.MODE_ECB)
+            self.state = cipher.encrypt(Padding.pad(self._convert_to_bytes(), 16))
             return self
         elif mode == "GCM":
             cipher = AES.new(
@@ -680,7 +679,7 @@ class EncryptionEncoding(ChepyCore):
             b"some data"
         """
 
-        assert mode in ["CBC", "OFB", "CTR", "ECB", "GCM"], "Not a valid mode."
+        assert mode in {"CBC", "OFB", "CTR", "ECB", "GCM"}, "Not a valid mode."
 
         key, iv = self._convert_key(key, iv, key_format, iv_format)
 
@@ -688,13 +687,13 @@ class EncryptionEncoding(ChepyCore):
             cipher = AES.new(key, mode=AES.MODE_CBC, iv=iv)
             self.state = Padding.unpad(cipher.decrypt(self._convert_to_bytes()), 16)
             return self
-        elif mode == "ECB":
-            cipher = AES.new(key, mode=AES.MODE_ECB)
-            self.state = Padding.unpad(cipher.decrypt(self._convert_to_bytes()), 16)
-            return self
         elif mode == "CTR":
             cipher = AES.new(key, mode=AES.MODE_CTR, nonce=b"")
             self.state = cipher.decrypt(self._convert_to_bytes())
+            return self
+        elif mode == "ECB":
+            cipher = AES.new(key, mode=AES.MODE_ECB)
+            self.state = Padding.unpad(cipher.decrypt(self._convert_to_bytes()), 16)
             return self
         elif mode == "GCM":
             cipher = AES.new(
@@ -964,9 +963,9 @@ class EncryptionEncoding(ChepyCore):
             if word_delim in chars:
                 chars = re.sub(word_delim, "", chars, re.I)
                 if morse_code_dict.get(chars) is not None:
-                    decode += " " + morse_code_dict.get(chars)
+                    decode += f" {morse_code_dict.get(chars)}"
                 else:  # pragma: no cover
-                    decode += " " + chars
+                    decode += f" {chars}"
             else:
                 decode += morse_code_dict.get(chars)
         self.state = decode

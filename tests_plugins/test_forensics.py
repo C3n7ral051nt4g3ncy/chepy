@@ -30,4 +30,3 @@ def test_get_metadata():
 
 def test_embedded():
     Chepy("logo.png").load_file().embedded_files()
-    assert True

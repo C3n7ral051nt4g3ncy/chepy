@@ -8,25 +8,15 @@ def base64_char_sets() -> dict:
         dict: Dict of various char sets
     """
     return {
-        "standard": ascii_uppercase + ascii_lowercase + digits + "+/=",  # A-Za-z0-9+/=
-        "url_safe": ascii_uppercase + ascii_lowercase + digits + "-_",  # A-Za-z0-9-_
-        "filename_safe": ascii_uppercase
-        + ascii_lowercase
-        + digits
-        + "+\\-=",  # A-Za-z0-9+\-=
-        "itoa64": "./"
-        + digits
-        + ascii_uppercase
-        + ascii_lowercase
-        + "=",  # ./0-9A-Za-z=
-        "xml": ascii_uppercase + ascii_lowercase + digits + "_.",  # A-Za-z0-9_.
-        "y64": ascii_uppercase + ascii_lowercase + digits + "._-",  # A-Za-z0-9._-
-        "z64": digits + ascii_lowercase + ascii_uppercase + "+/=",  # 0-9a-zA-Z+/=
-        "radix64": digits + ascii_uppercase + ascii_lowercase + "+/=",  # 0-9A-Za-z+/=
+        "standard": ascii_uppercase + ascii_lowercase + digits + "+/=",
+        "url_safe": ascii_uppercase + ascii_lowercase + digits + "-_",
+        "filename_safe": ascii_uppercase + ascii_lowercase + digits + "+\\-=",
+        "itoa64": "./" + digits + ascii_uppercase + ascii_lowercase + "=",
+        "xml": ascii_uppercase + ascii_lowercase + digits + "_.",
+        "y64": ascii_uppercase + ascii_lowercase + digits + "._-",
+        "z64": digits + ascii_lowercase + ascii_uppercase + "+/=",
+        "radix64": digits + ascii_uppercase + ascii_lowercase + "+/=",
         "uuencoding": " -_",
-        "xxencoding": "+\\-"
-        + digits
-        + ascii_uppercase
-        + ascii_lowercase,  # +\-0-9A-Za-z
-        "unix_crypt": "./" + digits + ascii_uppercase + ascii_lowercase,  # ./0-9A-Za-z
+        "xxencoding": "+\\-" + digits + ascii_uppercase + ascii_lowercase,
+        "unix_crypt": f"./{digits}{ascii_uppercase}{ascii_lowercase}",
     }

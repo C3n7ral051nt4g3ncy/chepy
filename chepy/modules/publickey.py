@@ -19,7 +19,7 @@ class Publickey(ChepyCore):
         issuer = cert.get_issuer()
         subject = cert.get_subject()
         pubkey = cert.get_pubkey()
-        info = {
+        return {
             "version": cert.get_version(),
             "serial": cert.get_serial_number(),
             "algo": cert.get_signature_algorithm(),
@@ -45,7 +45,6 @@ class Publickey(ChepyCore):
             },
             "pubkey": {"bits": pubkey.bits()},
         }
-        return info
 
     @ChepyDecorators.call_stack
     def parse_x509_pem(self) -> PublickeyT:

@@ -94,7 +94,7 @@ class Hashing(ChepyCore):
         Returns:
             Chepy: The Chepy object.
         """
-        assert truncate in [256, 224], "Valid truncates are 256, 224"
+        assert truncate in {256, 224}, "Valid truncates are 256, 224"
         h = SHA512.new(self._convert_to_bytes(), truncate=str(truncate))
         self.state = h.hexdigest()
         return self
@@ -314,13 +314,14 @@ class Hashing(ChepyCore):
             >>> Chepy("A").blake_2b(bits=128, key="key").out
             "6d2e4cba3bc564e02d1a76f585a6795d"
         """
-        assert bits in [
+        assert bits in {
             512,
             384,
             256,
             160,
             128,
-        ], "Valid bits are 512, 384, 256, 160, 128"
+        }, "Valid bits are 512, 384, 256, 160, 128"
+
         h = BLAKE2b.new(digest_bits=bits, key=key.encode())
         h.update(self._convert_to_bytes())
         self.state = h.hexdigest()
@@ -341,7 +342,7 @@ class Hashing(ChepyCore):
             >>> Chepy("A").blake_2s(bits=128, key="key").out
             "4e33cc702e9d08c28a5e9691f23bc66a"
         """
-        assert bits in [256, 160, 128], "Valid bits are 256, 160, 128"
+        assert bits in {256, 160, 128}, "Valid bits are 256, 160, 128"
         h = BLAKE2s.new(digest_bits=bits, key=key.encode())
         h.update(self._convert_to_bytes())
         self.state = h.hexdigest()
@@ -485,10 +486,7 @@ class Hashing(ChepyCore):
                 "Currently supported digests are md5, sha1, sha256 and sha512"
             )
 
-        if show_full_key:
-            self.state = h.hex()
-        else:
-            self.state = h.hex()[:64]
+        self.state = h.hex() if show_full_key else h.hex()[:64]
         return self
 
     @ChepyDecorators.call_stack
@@ -522,12 +520,8 @@ class Hashing(ChepyCore):
             True
         """
         try:
-            if KDF.bcrypt_check(self._convert_to_str(), hash) is None:
-                self.state = True
-                return self
-            else:  # pragma: no cover
-                self.state = False
-                return self
+            self.state = KDF.bcrypt_check(self._convert_to_str(), hash) is None
+            return self
         except ValueError:  # pragma: no cover
             self.state = False
             return self

@@ -187,7 +187,7 @@ class Networking(ChepyCore):
                 cert = sslsock.getpeercert()
                 final = {}
                 for key in cert.keys():
-                    if key == "subject" or key == "issuer":
+                    if key in ["subject", "issuer"]:
                         final[key] = dict(
                             collections.ChainMap(*list(map(dict, cert[key])))
                         )

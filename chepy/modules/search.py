@@ -30,7 +30,7 @@ class Search(ChepyCore):
             >>> Chepy("abcdefg123 and again abcdefg123").search("abc(de)fg(12)(3)").o
             [('abcdefg123', 'de', '12', '3'), ('abcdefg123', 'de', '12', '3')]
         """
-        self.state = re.findall("({})".format(pattern), self._convert_to_str())
+        self.state = re.findall(f"({pattern})", self._convert_to_str())
         return self
 
     @ChepyDecorators.call_stack

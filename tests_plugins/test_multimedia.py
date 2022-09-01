@@ -90,7 +90,8 @@ def test_image_add_text():
 
 def test_convert_image():
     assert (
-        Chepy("logo.png").load_file().convert_image("jpeg").to_hex().o[0:6] == b"ffd8ff"
+        Chepy("logo.png").load_file().convert_image("jpeg").to_hex().o[:6]
+        == b"ffd8ff"
     )
 
 

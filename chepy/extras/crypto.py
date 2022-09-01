@@ -9,7 +9,7 @@ from .combinatons import generate_combo, hex_chars
 from chepy import Chepy
 
 
-def factordb(n: int) -> dict:  # pragma: no cover
+def factordb(n: int) -> dict:    # pragma: no cover
     """Query the factordb api and get primes if available
 
     Args:
@@ -18,15 +18,13 @@ def factordb(n: int) -> dict:  # pragma: no cover
     Returns:
         dict: response from api as a dictionary. None if status code is not 200
     """
-    res = urlopen("http://factordb.com/api/?query={}".format(str(n)))
-    if res.status != 200:
-        return None
-    return json.loads(res.read().decode())
+    res = urlopen(f"http://factordb.com/api/?query={n}")
+    return None if res.status != 200 else json.loads(res.read().decode())
 
 
 def construct_private_key(
     n: int, e: int, d: int, format: str = "PEM", passphrase: str = None
-) -> str:  # pragma: no cover
+) -> str:    # pragma: no cover
     """Construct a private key given n, e and d
 
     Args:
@@ -40,9 +38,7 @@ def construct_private_key(
         str: Private key
     """
     valid_formats = ["PEM", "DER", "OpenSSH"]
-    assert format in valid_formats, "Valid formats are {}".format(
-        " ".join(valid_formats)
-    )
+    assert format in valid_formats, f'Valid formats are {" ".join(valid_formats)}'
     priv = RSA.construct((n, e, d))
     return priv.export_key(format=format, passphrase=passphrase)
 
@@ -141,7 +137,7 @@ def one_time_pad_crib(
     cipherText2 = unhexlify(cipherText2)
     xored = bytearray(a ^ b for a, b in zip(cipherText1, cipherText2))
     hold = []
-    for offset in range(0, len(xored) - len(crib) + 1):
+    for offset in range(len(xored) - len(crib) + 1):
         piece = xored[offset : offset + len(crib)]
         piece = bytearray(a ^ b for a, b in zip(crib, piece))
         if all(32 <= c <= 126 for c in piece):

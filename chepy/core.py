@@ -36,10 +36,8 @@ class ChepyDecorators(object):
         arguments and save it to self.stack. The data from
         self.stack is predominantly used to save recepies.
         """
-        func_sig = dict()
         func_self = args[0]
-        func_sig["function"] = func.__name__
-
+        func_sig = {"function": func.__name__}
         bound_args = inspect.signature(func).bind(*args, **kwargs)
         bound_args.apply_defaults()
 
@@ -77,7 +75,7 @@ class ChepyCore(object):
         self._initial_states = dict(list(enumerate(data)))
         #: Value of the initial state
         self._current_index = 0
-        self.buffers = dict()
+        self.buffers = {}
         #: Alias for `write_to_file`
         self.write = self.write_to_file
         #: Alias for `out`
@@ -87,7 +85,7 @@ class ChepyCore(object):
         #: Alias for `load_file`
         self.read_file = self.load_file
         #: Holds all the methods that are called/chanined and their args
-        self._stack = list()
+        self._stack = []
 
         #: Log level
         self.log_level = logging.INFO
@@ -435,7 +433,7 @@ class ChepyCore(object):
         try:
             del self.states[index]
         except KeyError:  # pragma: no cover
-            logging.warning("{} does not exist".format(index))
+            logging.warning(f"{index} does not exist")
         return self
 
     @ChepyDecorators.call_stack
@@ -513,7 +511,7 @@ class ChepyCore(object):
         try:
             del self.buffers[index]
         except KeyError:  # pragma: no cover
-            logging.warning("{} does not exist".format(index))
+            logging.warning(f"{index} does not exist")
         return self
 
     @ChepyDecorators.call_stack
@@ -611,7 +609,7 @@ class ChepyCore(object):
         """
         if isinstance(self.state, int):
             return self.state
-        elif isinstance(self.state, str) or isinstance(self.state, bytes):
+        elif isinstance(self.state, (str, bytes)):
             return int(self.state)
         else:  # pragma: no cover
             raise NotImplementedError
@@ -694,7 +692,7 @@ class ChepyCore(object):
         self,
         magic: bool = False,
         cyberchef_url: str = "https://gchq.github.io/CyberChef/",
-    ) -> None:  # pragma: no cover
+    ) -> None:    # pragma: no cover
         """Opens the current string in CyberChef on the browser as hex
 
         Args:
@@ -710,15 +708,11 @@ class ChepyCore(object):
         if magic:
             url = urljoin(
                 cyberchef_url,
-                "#recipe=From_Hex('None')Magic(3,false,false,'')&input={}".format(
-                    data.decode()
-                ),
+                f"#recipe=From_Hex('None')Magic(3,false,false,'')&input={data.decode()}",
             )
+
         else:
-            url = urljoin(
-                cyberchef_url,
-                "#recipe=From_Hex('None')&input={}".format(data.decode()),
-            )
+            url = urljoin(cyberchef_url, f"#recipe=From_Hex('None')&input={data.decode()}")
         webbrowser.open_new_tab(url)
         return None
 
@@ -923,10 +917,10 @@ class ChepyCore(object):
             path = path.decode()
         with open(str(self._abs_path(path)), "w+") as f:
             f.write(self._convert_to_str())
-        self._info_logger("File written to {}".format(self._abs_path(path)))
+        self._info_logger(f"File written to {self._abs_path(path)}")
         return None
 
-    def write_binary(self, path: str) -> None:  # pragma: no cover
+    def write_binary(self, path: str) -> None:    # pragma: no cover
         """Save the state to disk. Return None.
 
         Args:
@@ -942,7 +936,7 @@ class ChepyCore(object):
             path = path.decode()
         with open(str(self._abs_path(path)), "wb+") as f:
             f.write(self.state)
-        self._info_logger("File written to {}".format(self._abs_path(path)))
+        self._info_logger(f"File written to {self._abs_path(path)}")
         return None
 
     def run_recipe(self, recipes: List[Mapping[str, Union[str, Mapping[str, Any]]]]):
@@ -990,7 +984,7 @@ class ChepyCore(object):
         """
         with self._abs_path(path) as f:
             f.write_text(json.dumps(self._stack))
-        self._info_logger("Saved recipe to {}".format(str(path)))
+        self._info_logger(f"Saved recipe to {path}")
         return self
 
     def load_recipe(self, path: str):
@@ -1040,7 +1034,7 @@ class ChepyCore(object):
         if save_state:
             self.state = handle.cpy_script(self.state)
         else:
-            print(cyan("Script Output: {}".format(script_path)))
+            print(cyan(f"Script Output: {script_path}"))
             print(handle.cpy_script(self.state))
         return self
 
@@ -1072,7 +1066,7 @@ class ChepyCore(object):
             )
         )
 
-        for _ in range(int(iterations)):
+        for _ in range(iterations):
             getattr(self, callback)(**args)
 
         self._stack = self._stack[: stack_loop_index + 1]
@@ -1246,7 +1240,7 @@ class ChepyCore(object):
         return self
 
     @ChepyDecorators.call_stack
-    def pretty(self, indent: int = 2):  # pragma: no cover
+    def pretty(self, indent: int = 2):    # pragma: no cover
         """Prettify the state.
 
         Args:
@@ -1255,10 +1249,10 @@ class ChepyCore(object):
         Returns:
             Chepy: The Chepy object.
         """
-        self.state = pformat(self.state, indent=int(indent))
+        self.state = pformat(self.state, indent=indent)
         return self
 
-    def plugins(self, enable: str) -> None:  # pragma: no cover
+    def plugins(self, enable: str) -> None:    # pragma: no cover
         """Use this method to enable or disable Chepy plugins.
 
         Valid options are `true` or `false`. Once this method completes,
@@ -1270,7 +1264,7 @@ class ChepyCore(object):
         Returns:
             None
         """
-        assert enable in ["true", "false"], "Valid values are true and false"
+        assert enable in {"true", "false"}, "Valid values are true and false"
         conf_path = Path().home() / ".chepy" / "chepy.conf"
         c = ConfigParser()
         c.read(conf_path)

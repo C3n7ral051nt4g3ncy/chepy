@@ -252,11 +252,6 @@ def test_iv_formats():
     data = b"some data"
     res = b"5d2ae9d06625368fab0fda51ed325096"
     assert Chepy(data).aes_encrypt(key, iv, iv_format="hex").to_hex().o == res
-    # assert Chepy(data).aes_encrypt(key, iv, iv_format='utf8').to_hex().o == res
-    # assert Chepy(data).aes_encrypt(key, iv, iv_format='base64').to_hex().o == res
-    # assert Chepy(data).aes_encrypt(key, iv, iv_format='latin-1').to_hex().o == res
-    # TODO
-    pass
 
 
 def test_aes_encrypt():
